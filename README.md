@@ -63,8 +63,8 @@ Teach kids elementary concepts of memory and CPU, including:
 
 #### Condition Codes
     1       <
-    2       =
-    4       >
+    2       >
+    4       =
     add codes for combinations, e.g. ">=" is 6
 
 #### Code for Characters
