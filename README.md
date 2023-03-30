@@ -12,31 +12,31 @@ Assembler Learning Environment for Kids
 
 # Architecture
 
-Memory
+## Memory
     - is organized in 10 pages x 10 rows x 10 cells = 1000 cells
     - select page with the Memory tabs
 
-Pages
+## Pages
     0..4    code or data
     5..6    (reserved for shared pages)
     7..8    mapped to the video output
     9       (reserved for the stack page)
 
-Cells
+## Cells
     - contain a 3-digit decimal number (0..999, no hex/binary needed)
     - each cell has an address, also in range 0..999
     - double-click a cell to edit it via keyboard
     - click on the Code table entries to enter/edit instructions
     - drag-select multiple cells for menu "Clear Memory Cells"
 
-CPU
+## CPU
     - 4 general registers named R1..R4
     - IP register (Instruction Pointer) has the address of the next instruction
     - ALU can perform ADDitions, SUBtractions, and CoMParisons with numbers
     - CMP result can be one of "less than (<)", "equal to (=)" , or "greater than (>)"
     - data flow is not yet visualized during execution
 
-Codes for CPU Instructions
+## Codes for CPU Instructions
     (See the table in the "Code" tab)
     1ds     ADD to destination d the source s
     2ds     SUBtract from destination d the source s
@@ -45,19 +45,19 @@ Codes for CPU Instructions
     7cs     JuMP if condition c is satisfied to cell s
     999     HaLT the processor
 
-Addressing
+## Addressing
     ###         number immediately after the code (only for source)
     R1..R4      number in register
     (R1)..(R4)  number in memory addressed by register
     (##)        number in memory with absolute address
 
-Condition Codes
+## Condition Codes
     1       <
     2       =
     4       >
     add codes for combinations, e.g. ">=" is 6
 
-Code for Characters
+## Code for Characters
     (See the table in the "Char" tab)
     5       space
     6..9    elementary punctation
