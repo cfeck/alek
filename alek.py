@@ -11,7 +11,7 @@
 
 from PyQt5.QtCore import Qt, QSize, QPoint, QRect, QLine
 from PyQt5.QtGui import (QPainter, qRgb, qGray, QColor,
-    QPen, QFont, QImage, QPalette)
+    QPen, QFont, QImage, QPalette, QPolygon)
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
     QTableWidget, QTableWidgetItem, QTableWidgetSelectionRange,
     QHeaderView, QTabBar, QToolButton, QMenu, QAction, QFrame,
@@ -1023,7 +1023,7 @@ class CPUWidget(QFrame):
         p.translate(0.5, 0.5)
         p.setPen(QPen(QColor(0, 0, 0), 0.75))
         p.setBrush(QColor(210, 210, 210))
-        p.drawPolygon([
+        p.drawPolygon(QPolygon([
             QPoint(x, y),
             QPoint(x + 60, y),
             QPoint(x + 70, y + 10),
@@ -1031,7 +1031,7 @@ class CPUWidget(QFrame):
             QPoint(x + 140, y),
             QPoint(x + 100, y + 40),
             QPoint(x + 40, y + 40)
-        ])
+        ]))
         p.translate(-0.5, -0.5)
         p.drawText(QRect(x + 40, y + 7, 60, 30), Qt.AlignCenter, "ALU")
 
@@ -1108,16 +1108,16 @@ class AnimationWidget(QWidget):
         p.drawLine(QLine(682, 155, 730, 155))
         p.drawLine(QLine(682, 190, 730, 190))
         p.drawLine(QLine(843, 155, 964, 155))
-        p.drawPolyline([QPoint(720, 155), QPoint(720, 75), QPoint(738, 75)])
-        p.drawPolyline([QPoint(900, 155), QPoint(900, 75), QPoint(882, 75)])
+        p.drawPolyline(QPolygon([QPoint(720, 155), QPoint(720, 75), QPoint(738, 75)]))
+        p.drawPolyline(QPolygon([QPoint(900, 155), QPoint(900, 75), QPoint(882, 75)]))
         p.drawEllipse(QRect(720 - 2, 155 - 2, 4, 4))
         p.drawEllipse(QRect(900 - 2, 155 - 2, 4, 4))
         p.drawLine(QLine(770, 93, 770, 95))
         p.drawLine(QLine(850, 93, 850, 95))
         p.drawLine(QLine(810, 137, 810, 139))
         p.drawLine(QLine(810, 172, 810, 174))
-        p.drawPolyline([QPoint(860, 117), QPoint(870, 117), QPoint(870, 152)])
-        p.drawPolyline([QPoint(870, 158), QPoint(870, 189), QPoint(884, 189)])
+        p.drawPolyline(QPolygon([QPoint(860, 117), QPoint(870, 117), QPoint(870, 152)]))
+        p.drawPolyline(QPolygon([QPoint(870, 158), QPoint(870, 189), QPoint(884, 189)]))
         if self.clock > 0:
             rect = QRect(400, 300, 400, 160)
             p.setPen(QPen(QColor(100, 0, 0), 2.0))
