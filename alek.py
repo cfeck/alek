@@ -1046,7 +1046,7 @@ class CPUWidget(QFrame):
             v = 0
             text = item.text()
             if text.isnumeric():
-                v = int(text)
+                v = int(text) % 1000
             if y < 4:
                 r = y + 1
             else:
@@ -1314,7 +1314,7 @@ class MainWindow(QMainWindow):
             v = 0
             text = item.text()
             if text.isnumeric():
-                v = int(text)
+                v = int(text) % 1000
             elif len(text) == 1 and ord(text[0]) < 128 and CharToNum[ord(text[0])] > 4:
                 v = CharToNum[ord(text[0])]
             page = self.memoryTabBar.currentIndex()
