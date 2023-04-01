@@ -1223,6 +1223,7 @@ class MainWindow(QMainWindow):
         menu.addAction("Demo 2: Hello World").triggered.connect(self.demo2Clicked)
         menu.addAction("Demo 3: Count Down").triggered.connect(self.demo3Clicked)
         menu.addAction("Demo 4: Multiply").triggered.connect(self.demo4Clicked)
+        menu.addAction("Demo 5: Multiply 2").triggered.connect(self.demo5Clicked)
         menu.addSeparator()
         menu.addAction("Font Size +").triggered.connect(self.fontSizePlus)
         menu.addAction("Font Size −").triggered.connect(self.fontSizeMinus)
@@ -1355,25 +1356,38 @@ class MainWindow(QMainWindow):
         self.update()
 
     def demo1Clicked(self):
-        self.demoClicked(1)
+        self.demoClicked([510, 48, 591, 700, 510, 79, 591, 701, 999])
 
     def demo2Clicked(self):
-        self.demoClicked(2)
+        self.demoClicked([520, 20, 540, 700, 516, 610, 1, 710, 16, 581,
+                          120, 1, 140, 1, 770, 4, 999, 0, 0, 0,
+                          48, 75, 82, 82, 85, 7, 5, 63, 85, 88, 82, 74, 8, 0])
 
     def demo3Clicked(self):
-        self.demoClicked(3)
+        self.demoClicked([510, 9, 521, 120, 30, 592, 700, 210, 1, 610, 999, 730, 2, 999])
 
     def demo4Clicked(self):
-        self.demoClicked(4)
+        self.demoClicked([510, 0, 529, 20, 539, 21, 620, 0, 740, 15,
+                          113, 220, 1, 770, 6, 591, 22, 999, 0, 0,
+                          3, 17, 0])
 
-    def demoClicked(self, n):
-        code = [
-            [510, 48, 591, 700, 510, 79, 591, 701, 999],
-            [520, 20, 540, 700, 516, 610, 1, 710, 16, 581, 120, 1, 140, 1, 770, 4, 999, 0, 0, 0,
-             48, 75, 82, 82, 85, 7, 5, 63, 85, 88, 82, 74, 8, 0],
-            [510, 9, 521, 120, 30, 592, 700, 210, 1, 610, 999, 730, 2, 999],
-            [510, 0, 529, 20, 539, 21, 620, 0, 740, 15, 113, 220, 1, 770, 6, 591, 22, 999, 0, 0, 3, 17],
-        ][n - 1]
+    def demo5Clicked(self):
+        self.demoClicked([510, 0, 529, 95, 539, 96, 620, 0, 740, 15,
+                          113, 220, 1, 770, 6,
+                          591, 97, 540, 99, 530, 700,
+                          519, 95, 580, 27, 770, 50, 510, 12, 571, 130, 1,
+                          519, 96, 580, 38, 770, 50, 510, 28, 571, 530, 710,
+                          519, 97, 580, 49, 770, 50, 999,
+                          240, 1, 520, 30, 572, 130, 1, 572, 130, 1, 572, 230, 2,
+                          520, 100, 580, 69, 770, 84,
+                          520, 10, 580, 75, 770, 84,
+                          520, 1, 580, 81, 770, 84,
+                          140, 1, 778,
+                          612, 710, 92, 170, 1, 212, 770, 84, 130, 1, 778,
+                          3, 17,
+                          ])
+
+    def demoClicked(self, code):
         for a in range(100):
             Mem[Map[a]] = 0
         for i in range(len(code)):
