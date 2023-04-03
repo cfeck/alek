@@ -883,6 +883,8 @@ class TextInspectorWidget(QWidget):
         font2 = QFont("Courier")
         font2.setPixelSize(16)
 
+        self.characterCodeTables = [None] * 2
+
         for c in range(2):
             w = QTableWidget(5, 10, self)
             hlabels = []
@@ -896,6 +898,7 @@ class TextInspectorWidget(QWidget):
             w.verticalHeader().setFixedWidth(40)
             w.horizontalHeader().setFixedHeight(30)
             w.setEditTriggers(QTableWidget.NoEditTriggers)
+            self.characterCodeTables[c] = w
             for y in range(5):
                 for x in range(10):
                     v = 50 * c + 10 * y + x
@@ -912,6 +915,22 @@ class TextInspectorWidget(QWidget):
                         item.setTextAlignment(Qt.AlignBottom | Qt.AlignHCenter)
                     item.setText(s)
                     w.setItem(y, x, item)
+
+    def setData(self, data, size = 1):
+        if size != 1:
+            return
+        for i in range(2):
+            w = self.characterCodeTables[i]
+            w.setRangeSelected(QTableWidgetSelectionRange(0, 0, 4, 9), False)
+        c = data[0]
+        if c < 50:
+            w = self.characterCodeTables[0]
+        else:
+            c -= 50
+            w = self.characterCodeTables[1]
+        y = c // 10
+        x = c % 10
+        w.setRangeSelected(QTableWidgetSelectionRange(y, x, y, x), True)
 
 
 class AddrInspectorWidget(QWidget):
@@ -951,7 +970,8 @@ class InspectorWidget(QStackedWidget):
         self.setCurrentIndex(0)
 
     def setData(self, data, size = 1):
-        self.widget(0).setData(data, size)
+        for i in range(2):
+            self.widget(i).setData(data, size)
 
 
 class MemoryTabBar(QTabBar):
