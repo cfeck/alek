@@ -15,7 +15,7 @@ from PyQt5.QtGui import (QPainter, qRgb, qGray, QColor,
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
     QTableWidget, QTableWidgetItem, QTableWidgetSelectionRange,
     QHeaderView, QTabBar, QToolButton, QMenu, QAction, QFrame,
-    QStackedWidget)
+    QStackedWidget, QFileDialog)
 
 
 ##############################################################################
@@ -1287,6 +1287,9 @@ class MainWindow(QMainWindow):
         menu.addAction("Clear Video").triggered.connect(self.clearVideoClicked)
         menu.addAction("Clear Memory Cells").triggered.connect(self.clearMemoryClicked)
         menu.addSeparator()
+        menu.addAction("Open Project").triggered.connect(self.openProject)
+        menu.addAction("Save Project").triggered.connect(self.saveProject)
+        menu.addSeparator()
         menu.addAction("Demo 1: Hi").triggered.connect(self.demo1Clicked)
         menu.addAction("Demo 2: Hello World").triggered.connect(self.demo2Clicked)
         menu.addAction("Demo 3: Count Down").triggered.connect(self.demo3Clicked)
@@ -1323,6 +1326,52 @@ class MainWindow(QMainWindow):
 #        self.cpuWidget.updateState()
 #        self.memoryWidget.highlightAddress(cpu.reg[cpu.Reg.IP])
 
+    def openProject(self):
+        filename = QFileDialog.getOpenFileName(self, "Open Project", "", "ALEK Files (*.alek)")
+        if filename and filename[0]:
+            global Mem
+            fh = open(filename[0], "r")
+            line = fh.readline()
+            if line != "ALEKv001\n":
+                return
+            Mem = [0] * 1000
+            cpu.reset()
+            for line in fh:
+                mapline = eval(line)
+                for key in mapline:
+                    if key == 'cpu_state':
+                        cpu.state = mapline[key]
+                    elif key == 'cpu_reg':
+                        reg = mapline[key]
+                        for i in range(len(cpu.reg)):
+                            if i < len(reg):
+                                cpu.reg[i] = reg[i]
+                    elif key == 'mem':
+                        data = mapline[key]
+                        addr = data[0]
+                        cells = data[1]
+                        for i in range(len(cells)):
+                            Mem[Map[addr + i]] = cells[i]
+            fh.close()
+            self.updateAll()
+            self.execButton.setEnabled(cpu.state > cpu.State.Idle)
+
+    def saveProject(self):
+        filename = QFileDialog.getSaveFileName(self, "Save Project", "", "ALEK Files (*.alek)")
+        if filename and filename[0]:
+            fh = open(filename[0], "w")
+            fh.write("ALEKv001\n")
+            fh.write(str({'cpu_reg': cpu.reg}) + "\n")
+            fh.write(str({'cpu_state': cpu.state}) + "\n")
+            for addr in range(0, 1000, 10):
+                for i in range(10):
+                    if Mem[Map[addr + i]] != 0:
+                        cells = []
+                        for j in range(10):
+                            cells.append(Mem[Map[addr + j]])
+                        fh.write(str({'mem': [addr, cells]}) + "\n")
+                        break
+            fh.close()
 
     def fontSizePlus(self):
         font = self.font()
