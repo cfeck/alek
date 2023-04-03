@@ -771,12 +771,22 @@ class MemoryWidget(QTableWidget):
     def updateCells(self):
         for y in range(10):
             for x in range(10):
-                v = Mem[Map[100 * self.page + 10 * y + x]]
-                item = QTableWidgetItem(str(v).zfill(3))
-                item.setTextAlignment(Qt.AlignCenter)
-                if v == 0:
-                    item.setForeground(QColor(0, 0, 0, 60))
-                self.setItem(y, x, item)
+                self.updateCell(y, x)
+
+    def updateCell(self, y, x):
+        v = Mem[Map[100 * self.page + 10 * y + x]]
+        item = QTableWidgetItem(str(v).zfill(3))
+        item.setTextAlignment(Qt.AlignCenter)
+        if v == 0:
+            item.setForeground(QColor(0, 0, 0, 60))
+        self.setItem(y, x, item)
+
+    def updateCellAddress(self, v):
+        if v // 100 != self.page:
+            return
+        y = (v // 10) % 10
+        x = (v % 10)
+        self.updateCell(y, x)
 
     def highlightAddress(self, v):
         y = (v // 10) % 10
@@ -1296,7 +1306,7 @@ class MainWindow(QMainWindow):
         else:
             print("?")
         Mem[Map[a]] = c
-        self.memoryWidget.updateCells()
+        self.memoryWidget.updateCellAddress(a)
         self.inspectorWidget.setData([c], 1)
 
     def memoryCellsSelected(self):
@@ -1322,7 +1332,7 @@ class MainWindow(QMainWindow):
             a = 100 * page + 10 * y + x
             Mem[Map[a]] = v
             self.memoryWidget.blockSignals(True)
-            self.memoryWidget.updateCells()
+            self.memoryWidget.updateCellAddress(a)
             self.memoryWidget.blockSignals(False)
             self.memoryCellsSelected()
             if page == 7 or page == 8:
