@@ -9,7 +9,7 @@
 #  or (at your option) any later version.
 #
 
-from PyQt5.QtCore import Qt, QSize, QPoint, QRect, QLine
+from PyQt5.QtCore import Qt, QSize, QPoint, QRect, QLine, pyqtSignal
 from PyQt5.QtGui import (QPainter, qRgb, qGray, QColor,
     QPen, QFont, QImage, QPalette, QPolygon)
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
@@ -915,6 +915,17 @@ class TextInspectorWidget(QWidget):
                         item.setTextAlignment(Qt.AlignBottom | Qt.AlignHCenter)
                     item.setText(s)
                     w.setItem(y, x, item)
+        self.characterCodeTables[0].cellClicked.connect(self.table0Clicked)
+        self.characterCodeTables[1].cellClicked.connect(self.table1Clicked)
+
+    codeClicked = pyqtSignal(int)
+
+    def table0Clicked(self, y, x):
+        c = y * 10 + x
+        self.codeClicked.emit(c)
+
+    def table1Clicked(self, y, x):
+        self.table0Clicked(y + 5, x)
 
     def setData(self, data, size = 1):
         if size != 1:
@@ -968,6 +979,14 @@ class InspectorWidget(QStackedWidget):
 #        self.addWidget(GenericInspectorWidget(self))
 #        self.addWidget(GenericInspectorWidget(self))
         self.setCurrentIndex(0)
+
+#        self.widget(0).codeClicked.connect(self.codeClicked)
+        self.widget(1).codeClicked.connect(self.codeClicked)
+
+    codeClicked = pyqtSignal(int)
+
+#    def codeClicked(self, c):
+#        self.codeClicked.emit(c)
 
     def setData(self, data, size = 1):
         for i in range(2):
@@ -1230,6 +1249,7 @@ class MainWindow(QMainWindow):
 
         self.inspectorTabBar.currentChanged.connect(self.inspectorWidget.setCurrentIndex)
         self.inspectorWidget.widget(0).cellClicked.connect(self.inspectorClicked)
+        self.inspectorWidget.codeClicked.connect(self.codeClicked)
 
         w = CPUTabBar(self)
         self.cpuTabBar = w
@@ -1299,6 +1319,22 @@ class MainWindow(QMainWindow):
             font.setPixelSize(font.pixelSize() - 1)
             self.setFont(font)
             self.update()
+
+    def codeClicked(self, c):
+        page = self.memoryTabBar.currentIndex()
+        ranges = self.memoryWidget.selectedRanges()
+        a = -1
+        if len(ranges) == 1:
+            sr = ranges[0]
+            if sr.rowCount() == 1 and sr.columnCount() == 1:
+                my = sr.topRow()
+                mx = sr.leftColumn()
+                a = 100 * page + 10 * my + mx
+        if a < 0:
+            return
+        Mem[Map[a]] = c
+        self.memoryWidget.updateCellAddress(a)
+        self.inspectorWidget.setData([c], 1)
 
     def inspectorClicked(self, y, x):
         page = self.memoryTabBar.currentIndex()
