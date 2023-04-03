@@ -1397,6 +1397,7 @@ class MainWindow(QMainWindow):
     def updateAll(self):
         self.memoryWidget.updateCells()
         self.cpuWidget.updateState()
+        self.memoryTabBar.setCurrentIndex(cpu.reg[cpu.Reg.IP] // 100)
         self.memoryWidget.highlightAddress(cpu.reg[cpu.Reg.IP])
         self.memoryCellsSelected()
         self.update()
