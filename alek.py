@@ -834,20 +834,20 @@ class CodeInspectorWidget(QTableWidget):
             d = data[0] // 100
             if d in [9]:
                 vlabels = ["Op", "Op", ""]
-                l += [ ["---", "---", "---", "---", "---", "---", "---", "---", "---", ">>>"] ]
+                l += [ ["---", "---", "---", "---", "---", "POP","PUSH","CALL", "---", ">>>"] ]
                 d9 = (data[0] // 10) % 10
                 if d9 in [9]:
                     vlabels = ["Op", "Op", "Op"]
-                    l += [ ["---", "---", "---", "---", "---", "---", "---", "---", "---", "HLT"] ]
+                    l += [ ["---", "---", "---", "---", "---", "---", "---", "RET", "---", "HLT"] ]
 #                elif d9 in [1, 2]:
 #                    vlabels = ["Op", "Op", "☐⇄"]
 #                    l += [ ["---",  "R1",  "R2",  "R3",  "R4","[R1]","[R2]","[R3]","[R4]","[##]"] ]
-#                elif d9 in [5]:
-#                    vlabels = ["Op", "Op", "☐↢"]
-#                    l += [ ["---",  "R1",  "R2",  "R3",  "R4","[R1]","[R2]","[R3]","[R4]","[##]"] ]
-#                elif d9 in [7]:
-#                    vlabels = ["Op", "Op", "↢☐"]
-#                    l += [ ["###",  "R1",  "R2",  "R3",  "R4","[R1]","[R2]","[R3]","[R4]","[##]"] ]
+                elif d9 in [5]:
+                    vlabels = ["Op", "Op", "☐↢"]
+                    l += [ ["---",  "R1",  "R2",  "R3",  "R4","[R1]","[R2]","[R3]","[R4]","[##]"] ]
+                elif d9 in [6, 7]:
+                    vlabels = ["Op", "Op", "↢☐"]
+                    l += [ ["###",  "R1",  "R2",  "R3",  "R4","[R1]","[R2]","[R3]","[R4]","[##]"] ]
                 else:
                     l += [ ["---", "---", "---", "---", "---", "---", "---", "---", "---", "---"] ]
             elif d in [0, 3, 4, 8]:
@@ -1047,9 +1047,8 @@ class CPUWidget(QFrame):
         self.setLineWidth(2)
 
         self.regs1 = self.addRegisterFile(["R1", "R2", "R3", "R4", "IP"], QRect(264, 10, 104, 144))
-#        self.regs2 = self.addRegisterFile(["R5", "R6", "R7", "R8", "IP"], QRect(368, 10, 104, 144))
-        self.regs2 = self.addRegisterFile(["", "", "", "", ""], QRect(368, 10, 104, 144))
-        self.regs2.setEnabled(False)
+        self.regs2 = self.addRegisterFile(["", "", "", "", "SP"], QRect(368, 10, 104, 144))
+        self.regs2.setEditTriggers(QTableWidget.NoEditTriggers)
         self.addLatch("Data", 60, 30, 50, QRect(30, 87, 114, 34), "")
         self.addLatch("Addr", 60, 30, 50, QRect(30, 122, 114, 34), "")
         self.addLatch("", 60, 30, 0, QRect(38, 8, 64, 34), "")
@@ -1121,19 +1120,49 @@ class CPUWidget(QFrame):
             cpu.reg[r] = v
             self.updateState()
 
+    def showStack(self):
+        sp = cpu.reg[cpu.Reg.SP]
+        if sp == 0:
+            sp = 1000
+        base = min(996, sp)
+        vlabels = ["", "", "", "", "SP"]
+        for i in range(4):
+            if i + base >= sp:
+                vlabels[i] = str(i + base).zfill(3)
+        self.regs2.setVerticalHeaderLabels(vlabels)
+        w = self.regs2
+        for i in range(5):
+            item = QTableWidgetItem()
+            item.setTextAlignment(Qt.AlignCenter)
+            if i == 4:
+                v = cpu.reg[cpu.Reg.SP]
+            else:
+                v = ""
+                if i + base >= sp:
+                    v = Mem[Map[i + base]]
+            if v != "":
+                if v == 0:
+                    item.setForeground(QColor(0, 0, 0, 100))
+                v = str(v).zfill(3)
+            if w.item(i, 0) == None or v != w.item(i, 0).text():
+                item.setText(v)
+                w.blockSignals(True)
+                w.setItem(i, 0, item)
+                w.blockSignals(False)
+
     def updateState(self):
         for r in range(10):
             v = cpu.reg[r]
             if self.old[r] != v:
                 if r == 0:
-                    w, i = self.regs1, 4
+                    self.showStack()
+                    w, i = self.regs2, 4
                 elif r < 5:
                     w, i = self.regs1, r - 1
                 elif r < 9:
                     continue
                     w, i = self.regs2, r - 5
                 else:
-#                    w, i = self.regs2, 4
                     w, i = self.regs1, 4
                 item = QTableWidgetItem()
                 item.setTextAlignment(Qt.AlignCenter)

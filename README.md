@@ -7,6 +7,7 @@ Teach kids elementary concepts of memory and CPU, including:
 - character codes
 - memory addresses
 - ALU and registers
+- call stack
 - memory-mapped output
 
 ![ALEK Main Window](ALEK.png)
@@ -42,6 +43,7 @@ Teach kids elementary concepts of memory and CPU, including:
 ### CPU
 - 4 general registers R1..R4
 - IP register (Instruction Pointer) has the address of the next instruction
+- SP register (Stack Pointer) has the address of last pushed number
 - ALU can perform arithmetic operations (+ −) and comparison with numbers
 - comparison results "less than (<)", "equal to (=)" , or "greater than (>)"
 - data flow is not yet visualized during execution
@@ -52,6 +54,10 @@ Teach kids elementary concepts of memory and CPU, including:
     5ds     MOV     move to destination d the source s
     6ds     CMP     compare numbers from sources d and s
     7cs     JMP     jump if condition c is satisfied to cell s
+    95d     POP     pop (from stack) to destination d
+    96s     PUSH    push (to stack) the source s
+    97s     CALL    push IP and jump to cell s
+    997     RET     pop to IP (return to caller)
     999     HLT     halt the processor
 (See the table in the "Code" tab)
 
