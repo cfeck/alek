@@ -148,7 +148,7 @@ class VirtualGPU:
                 a += 1
                 if char > 4:
                     crect = QRect(cw * x, ch * y, cw, ch)
-                    painter.drawText(crect, Qt.AlignCenter, NumToChar[char])
+                    painter.drawText(crect, Qt.AlignmentFlag.AlignCenter, NumToChar[char])
         painter.restore()
 
 
@@ -728,8 +728,8 @@ class VirtualCPU:
 def setHeaderAttributes(header, size, font):
     header.setMinimumSectionSize(10)
     header.setDefaultSectionSize(size)
-    header.setDefaultAlignment(Qt.AlignCenter)
-    header.setSectionResizeMode(QHeaderView.Fixed)
+    header.setDefaultAlignment(Qt.AlignmentFlag.AlignCenter)
+    header.setSectionResizeMode(QHeaderView.ResizeMode.Fixed)
     header.setFont(font)
 
 
@@ -737,9 +737,9 @@ def setTableAttributes(table, hlabels, vlabels, hsize, vsize, selectionMode):
     table.setSelectionMode(selectionMode)
     table.setHorizontalHeaderLabels(hlabels)
     table.setVerticalHeaderLabels(vlabels)
-    table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-    table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-    table.setTextElideMode(Qt.ElideNone)
+    table.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    table.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+    table.setTextElideMode(Qt.TextElideMode.ElideNone)
     font = table.font()
     font.setPixelSize(14)
     setHeaderAttributes(table.horizontalHeader(), hsize, font)
@@ -757,7 +757,7 @@ class MemoryWidget(QTableWidget):
         vlabels = []
         for y in range(10):
             vlabels += [str(10 * y).zfill(3)]
-        setTableAttributes(self, hlabels, vlabels, 60, 40, QTableWidget.ExtendedSelection)
+        setTableAttributes(self, hlabels, vlabels, 60, 40, QTableWidget.SelectionMode.ExtendedSelection)
         self.setPage(0)
 
     def setPage(self, page):
@@ -776,7 +776,7 @@ class MemoryWidget(QTableWidget):
     def updateCell(self, y, x):
         v = Mem[Map[100 * self.page + 10 * y + x]]
         item = QTableWidgetItem(str(v).zfill(3))
-        item.setTextAlignment(Qt.AlignCenter)
+        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         if v == 0:
             item.setForeground(QColor(0, 0, 0, 60))
         self.setItem(y, x, item)
@@ -803,13 +803,13 @@ class GenericInspectorWidget(QWidget):
         for x in range(10):
             hlabels += [str(x)]
         vlabels = ["#xx", "x#x", "xx#"]
-        setTableAttributes(w, hlabels, vlabels, 60, 40, QTableWidget.SingleSelection)
+        setTableAttributes(w, hlabels, vlabels, 60, 40, QTableWidget.SelectionMode.SingleSelection)
         self.table = w
 
     def setItems(l):
         text = l[y][x]
         item = QTableWidgetItem(text)
-        item.setTextAlignment(Qt.AlignCenter)
+        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         if text == "---":
             item.setForeground(QColor(0, 0, 0, 100))
         self.table.setItem(y, x, item)
@@ -822,8 +822,8 @@ class CodeInspectorWidget(QTableWidget):
         for x in range(10):
             hlabels += [str(x)]
         vlabels = ["Op", "☐⇄", "↢☐"]
-        setTableAttributes(self, hlabels, vlabels, 60, 40, QTableWidget.SingleSelection)
-        self.setEditTriggers(QTableWidget.NoEditTriggers)
+        setTableAttributes(self, hlabels, vlabels, 60, 40, QTableWidget.SelectionMode.SingleSelection)
+        self.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
 
         self.setData([999], 1)
 
@@ -885,7 +885,7 @@ class CodeInspectorWidget(QTableWidget):
             for x in range(10):
                 text = l[y][x]
                 item = QTableWidgetItem(text)
-                item.setTextAlignment(Qt.AlignCenter)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 if text == "---":
                     item.setForeground(QColor(0, 0, 0, 100))
                 self.setItem(y, x, item)
@@ -911,11 +911,11 @@ class TextInspectorWidget(QWidget):
             vlabels = []
             for y in range(0 + c * 5, 5 + c * 5):
                 vlabels += [str(y) + "0"]
-            setTableAttributes(w, hlabels, vlabels, 28, 28, QTableWidget.SingleSelection)
+            setTableAttributes(w, hlabels, vlabels, 28, 28, QTableWidget.SelectionMode.SingleSelection)
             w.setGeometry(c * 340, 0, 324, 174)
             w.verticalHeader().setFixedWidth(40)
             w.horizontalHeader().setFixedHeight(30)
-            w.setEditTriggers(QTableWidget.NoEditTriggers)
+            w.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
             self.characterCodeTables[c] = w
             for y in range(5):
                 for x in range(10):
@@ -923,14 +923,13 @@ class TextInspectorWidget(QWidget):
                     s = NumToChar[v]
                     item = QTableWidgetItem()
                     item.setFont(font)
-                    item.setTextAlignment(Qt.AlignCenter)
-                    item.setTextAlignment(Qt.AlignTop | Qt.AlignHCenter)
+                    item.setTextAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignHCenter)
                     item.setForeground(QColor(0, 0, 100))
                     if v < 5:
                         s = ["∅", "⇥", "↵", "↤", "⁙"][v]
                         item.setForeground(QColor(0, 0, 0, 100))
                         item.setFont(font2)
-                        item.setTextAlignment(Qt.AlignBottom | Qt.AlignHCenter)
+                        item.setTextAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter)
                     item.setText(s)
                     w.setItem(y, x, item)
         self.characterCodeTables[0].cellClicked.connect(self.table0Clicked)
@@ -1042,13 +1041,13 @@ class CPUTabBar(QTabBar):
 class CPUWidget(QFrame):
     def __init__(self, parent):
         QFrame.__init__(self, parent)
-        self.setFrameShape(QFrame.StyledPanel)
-        self.setFrameShadow(QFrame.Sunken)
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+        self.setFrameShadow(QFrame.Shadow.Sunken)
         self.setLineWidth(2)
 
         self.regs1 = self.addRegisterFile(["R1", "R2", "R3", "R4", "IP"], QRect(264, 10, 104, 144))
         self.regs2 = self.addRegisterFile(["", "", "", "", "SP"], QRect(368, 10, 104, 144))
-        self.regs2.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.regs2.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         self.addLatch("Data", 60, 30, 50, QRect(30, 87, 114, 34), "")
         self.addLatch("Addr", 60, 30, 50, QRect(30, 122, 114, 34), "")
         self.addLatch("", 60, 30, 0, QRect(38, 8, 64, 34), "")
@@ -1061,7 +1060,7 @@ class CPUWidget(QFrame):
 
     def addRegisterFile(self, labels, geometry):
         w = QTableWidget(5, 1, self)
-        setTableAttributes(w, [], labels, 60, 28, QTableWidget.NoSelection)
+        setTableAttributes(w, [], labels, 60, 28, QTableWidget.SelectionMode.NoSelection)
         w.verticalHeader().setFixedWidth(40)
         w.horizontalHeader().hide()
         w.setGeometry(geometry)
@@ -1069,7 +1068,7 @@ class CPUWidget(QFrame):
 
     def addLatch(self, label, hsize, vsize, hwidth, geometry, text):
         w = QTableWidget(1, 1, self)
-        setTableAttributes(w, [], [label], hsize, vsize, QTableWidget.NoSelection)
+        setTableAttributes(w, [], [label], hsize, vsize, QTableWidget.SelectionMode.NoSelection)
         if label == "":
             w.verticalHeader().hide()
         else:
@@ -1078,14 +1077,14 @@ class CPUWidget(QFrame):
         w.setGeometry(geometry)
         item = QTableWidgetItem(text)
         item.setForeground(QColor(0, 0, 0, 100))
-        item.setTextAlignment(Qt.AlignCenter)
+        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         w.setItem(0, 0, item)
         return w
 
     def paintALU(self, p):
         x = 40
         y = 44
-        p.setRenderHints(QPainter.Antialiasing, True)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing, True)
         p.translate(0.5, 0.5)
         p.setPen(QPen(QColor(0, 0, 0), 0.75))
         p.setBrush(QColor(210, 210, 210))
@@ -1099,7 +1098,7 @@ class CPUWidget(QFrame):
             QPoint(x + 40, y + 40)
         ]))
         p.translate(-0.5, -0.5)
-        p.drawText(QRect(x + 40, y + 7, 60, 30), Qt.AlignCenter, "ALU")
+        p.drawText(QRect(x + 40, y + 7, 60, 30), Qt.AlignmentFlag.AlignCenter, "ALU")
 
     def paintEvent(self, event):
         QFrame.paintEvent(self, event)
@@ -1133,7 +1132,7 @@ class CPUWidget(QFrame):
         w = self.regs2
         for i in range(5):
             item = QTableWidgetItem()
-            item.setTextAlignment(Qt.AlignCenter)
+            item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             if i == 4:
                 v = cpu.reg[cpu.Reg.SP]
             else:
@@ -1165,7 +1164,7 @@ class CPUWidget(QFrame):
                 else:
                     w, i = self.regs1, 4
                 item = QTableWidgetItem()
-                item.setTextAlignment(Qt.AlignCenter)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
                 if v == 0:
                     item.setForeground(QColor(0, 0, 0, 100))
                 v = str(v).zfill(3)
@@ -1181,14 +1180,14 @@ class CPUWidget(QFrame):
         item = QTableWidgetItem()
         text = ["?", "<", ">", "?", "="][cpu.reg[cpu.Reg.Flags]]
         item.setText(text)
-        item.setTextAlignment(Qt.AlignCenter)
+        item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         self.cmpR.setItem(0, 0, item)
 
 
 class AnimationWidget(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
-        self.setAttribute(Qt.WA_TransparentForMouseEvents, True)
+        self.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents, True)
         self.xp = 100
         self.yp = 100
         self.xs = 8
@@ -1198,7 +1197,7 @@ class AnimationWidget(QWidget):
     def paintEvent(self, event):
         p = QPainter(self)
 #        p.fillRect(QRect(self.xp, self.yp, 60, 30), QColor(255, 0, 0))
-        p.setRenderHints(QPainter.Antialiasing, True)
+        p.setRenderHints(QPainter.RenderHint.Antialiasing, True)
         p.translate(0.5, 0.5)
         p.setPen(QPen(QColor(0, 0, 0), 1.25))
         p.drawLine(QLine(682, 155, 730, 155))
@@ -1219,7 +1218,7 @@ class AnimationWidget(QWidget):
             p.setPen(QPen(QColor(100, 0, 0), 2.0))
             p.setBrush(QColor(240, 220, 220))
             p.drawRect(rect)
-            p.drawText(rect, Qt.AlignCenter, "ERROR! Processor Halted")
+            p.drawText(rect, Qt.AlignmentFlag.AlignCenter, "ERROR! Processor Halted")
 
     def showError(self):
         self.clock = 90
@@ -1245,7 +1244,7 @@ class AnimationWidget(QWidget):
 class MenuButton(QToolButton):
     def __init__(self, parent):
         QToolButton.__init__(self, parent)
-        self.setPopupMode(QToolButton.InstantPopup)
+        self.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
         self.setText(" ")
 
 
@@ -1608,7 +1607,7 @@ class MainWindow(QMainWindow):
         if self.clock < 150:
             painter.setPen(QColor(240, 240, 240))
             copyright = "ALEK 0.1 Copyright 2023 Christoph Feck"
-            painter.drawText(rect.adjusted(20, 10, -20, -10), Qt.AlignBottom | Qt.AlignHCenter, copyright)
+            painter.drawText(rect.adjusted(20, 10, -20, -10), Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignHCenter, copyright)
 
     def sizeHint(self):
 #        return QSize(2000, 1200)
