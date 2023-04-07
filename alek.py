@@ -105,14 +105,17 @@ class VirtualGPU:
         self.vid_h = 10
         self.txtmem = 700
         self.txtwide = True
-        self.layers = [self.paintSolidBackground, self.paintText]
+        self.layers = [self.paintColorBackground, self.paintText]
 
     def clearVideo(self):
-        a = Map[self.txtmem]
+        a1 = Map[self.txtmem]
+        a2 = Map[self.txtmem + self.vid_w * self.vid_h]
         for y in range(self.vid_h):
             for x in range(self.vid_w):
-                Mem[a] = 0
-                a += 1
+                Mem[a1] = 0
+                a1 += 1
+                Mem[a2] = 0
+                a2 += 1
 
     def paintVideo(self, painter, rect):
         for paintLayer in self.layers:
@@ -127,6 +130,24 @@ class VirtualGPU:
     def paintSolidBackground(self, painter, rect):
         bg_rgb = self.ColorMap[self.bg_rgb]
         painter.fillRect(rect, QColor(bg_rgb))
+
+    def paintColorBackground(self, painter, rect):
+        bg_rgb = self.ColorMap[self.bg_rgb]
+        cw = rect.width() // self.vid_w
+        ch = rect.height() // self.vid_h
+        a1 = Map[self.txtmem]
+        a2 = Map[self.txtmem + self.vid_w * self.vid_h]
+        for y in range(self.vid_h):
+            for x in range(self.vid_w):
+                char = Mem[a1]
+                a1 += 1
+                if char == 0:
+                    rgb = self.ColorMap[Mem[a2]]
+                else:
+                    rgb = bg_rgb
+                a2 += 1
+                crect = QRect(rect.x() + cw * x, rect.y() + ch * y, cw, ch)
+                painter.fillRect(crect, QColor(rgb))
 
     def paintText(self, painter, rect):
         painter.save()
@@ -968,6 +989,60 @@ class AddrInspectorWidget(QWidget):
 class ColorInspectorWidget(QWidget):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
+        hlabels = []
+        for x in range(10):
+            hlabels += [str(x)]
+        w = QTableWidget(3, 10, self)
+        w.setGeometry(0, 0, 504, 156)
+        vlabels = ["R", "G", "B"]
+        setTableAttributes(w, hlabels, vlabels, 44, 40, QTableWidget.SelectionMode.NoSelection)
+        w.verticalHeader().setFixedWidth(60)
+        font = QFont("Courier")
+        font.setPixelSize(24)
+        w.verticalHeader().setFont(font)
+        w.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+        self.colorTable = w
+        w.cellClicked.connect(self.tableClicked)
+
+    codeClicked = pyqtSignal(int)
+
+    def tableClicked(self, y, x):
+        if y == 0:
+            self.R = x
+        elif y == 1:
+            self.G = x
+        else:
+            self.B = x
+        c = 100 * self.R + 10 * self.G + self.B
+        self.codeClicked.emit(c)
+
+    def updateColorTable(self):
+        font = QFont("Courier")
+        font.setPixelSize(24)
+        for y in range(3):
+            for x in range(10):
+                (R, G, B) = (self.R, self.G, self.B)
+                if y == 0:
+                    R = x
+                elif y == 1:
+                    G = x
+                else:
+                    B = x
+                item = QTableWidgetItem()
+                color = QColor(gpu.ColorMap[100 * R + 10 * G + B])
+                if (R, G, B) == (self.R, self.G, self.B):
+                    item.setBackground(color)
+                item.setForeground(color)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
+                item.setText("██")
+                item.setFont(font)
+                self.colorTable.setItem(y, x, item)
+
+    def setData(self, data, size = 1):
+        self.R = data[0] // 100
+        self.G = (data[0] // 10) % 10
+        self.B = data[0] % 10
+        self.updateColorTable()
 
 
 class InspectorTabBar(QTabBar):
@@ -979,7 +1054,7 @@ class InspectorTabBar(QTabBar):
 #        self.addTab("Num")
         self.addTab("Char")
 #        self.addTab("Emoji")
-#        self.addTab("Color")
+        self.addTab("Color")
 #        self.addTab("Pixels")
 #        self.addTab("Bits")
 
@@ -992,13 +1067,14 @@ class InspectorWidget(QStackedWidget):
 #        self.addWidget(GenericInspectorWidget(self))
 #        self.addWidget(GenericInspectorWidget(self))
         self.addWidget(TextInspectorWidget(self))
-#        self.addWidget(ColorInspectorWidget(self))
+        self.addWidget(ColorInspectorWidget(self))
 #        self.addWidget(GenericInspectorWidget(self))
 #        self.addWidget(GenericInspectorWidget(self))
         self.setCurrentIndex(0)
 
 #        self.widget(0).codeClicked.connect(self.codeClicked)
         self.widget(1).codeClicked.connect(self.codeClicked)
+        self.widget(2).codeClicked.connect(self.codeClicked)
 
     codeClicked = pyqtSignal(int)
 
@@ -1006,7 +1082,7 @@ class InspectorWidget(QStackedWidget):
 #        self.codeClicked.emit(c)
 
     def setData(self, data, size = 1):
-        for i in range(2):
+        for i in range(3):
             self.widget(i).setData(data, size)
 
 
@@ -1020,13 +1096,13 @@ class MemoryTabBar(QTabBar):
         self.addTab("4")
         self.addTab("5")
         self.addTab("6")
-        self.addTab("Text  7  ")
-        self.addTab("8")
-        self.addTab("9")
+        self.addTab("Text 7  ")
+        self.addTab("Color 8  ")
+        self.addTab("Stack 9")
 
     def minimumTabSizeHint(self, index):
         size = QTabBar.minimumTabSizeHint(self, index)
-        if index in [1, 2, 3, 4, 5, 6, 8, 9]:
+        if index in [1, 2, 3, 4, 5, 6]:
             size = QSize(10, size.height())
         return size
 

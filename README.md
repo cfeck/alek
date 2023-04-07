@@ -5,6 +5,7 @@ Assembly Learning Environment for Kids
 Teach kids elementary concepts of memory and CPU, including:
 - instruction codes
 - character codes
+- RGB color codes
 - memory addresses
 - ALU and registers
 - call stack
@@ -31,7 +32,7 @@ Teach kids elementary concepts of memory and CPU, including:
     0..4    code or data
     5..6    (reserved for shared pages)
     7..8    mapped to the video output
-    9       (reserved for the stack page)
+    9       stack page
 
 #### Cells
 - contain a 3-digit decimal number (0..999, no hex/binary needed)
